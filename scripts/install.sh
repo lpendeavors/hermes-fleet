@@ -1,7 +1,26 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
+
+# Root check
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root or with sudo" 
+   exit 1
+fi
 
 echo "=== Band Director VPS Bootstrap ==="
+
+# Detect OS
+if ! command -v lsb_release &> /dev/null; then
+    apt-get update && apt-get install -y lsb-release
+fi
+
+DISTRO=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
+CODENAME=$(lsb_release -cs)
+
+if [[ "$DISTRO" != "ubuntu" && "$DISTRO" != "debian" ]]; then
+    echo "Unsupported distro: $DISTRO. Only Ubuntu/Debian supported."
+    exit 1
+fi
 
 # Update system
 apt-get update
@@ -30,15 +49,25 @@ systemctl start docker
 
 # Create app directory
 mkdir -p /opt/hermes-fleet
-chown -R $SUDO_USER:$SUDO_USER /opt/hermes-fleet
 
-# Setup firewall
+# Set ownership (handle both sudo and root cases)
+TARGET_USER="${SUDO_USER:-${USER:-root}}"
+chown -R "$TARGET_USER:$TARGET_USER" /opt/hermes-fleet
+
+# Add user to docker group if not root
+if [[ "$TARGET_USER" != "root" ]]; then
+    usermod -aG docker "$TARGET_USER"
+    echo "Added $TARGET_USER to docker group (logout/login required)"
+fi
+
+# Setup firewall safely
+DEFAULT_SSH_PORT=$(grep -oP '^Port\s+\K[0-9]+' /etc/ssh/sshd_config 2>/dev/null || echo "22")
 ufw default deny incoming
 ufw default allow outgoing
-ufw allow ssh
-ufw --force enable
+ufw allow "$DEFAULT_SSH_PORT/tcp"
 
 echo "=== Bootstrap complete ==="
+echo "Firewall configured to allow SSH on port $DEFAULT_SSH_PORT"
 echo "Next steps:"
 echo "1. Clone your repo: cd /opt/hermes-fleet && git clone <your-repo> ."
 echo "2. Create .env file with your secrets"
