@@ -52,10 +52,10 @@ services:
       - hermes-net
     healthcheck:
       test: ["CMD", "sh", "-c", "node -e \"require('http').get('http://localhost:3000', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
-      interval: 15s
-      timeout: 10s
+      interval: 30s
+      timeout: 15s
       retries: 10
-      start_period: 30s
+      start_period: 60s
 
   firecrawl-api:
     image: ghcr.io/firecrawl/firecrawl:latest
