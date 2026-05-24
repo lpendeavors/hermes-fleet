@@ -28,6 +28,7 @@ mkdir -p config skills
 ### 3. Local development
 
 ```bash
+# This starts Hermes + self-hosted Firecrawl (Redis, Postgres, Playwright)
 docker compose up -d
 docker compose logs -f hermes
 ```
@@ -42,9 +43,10 @@ curl -fsSL https://raw.githubusercontent.com/larrylegendrr/hermes-fleet/main/scr
 cd /opt/hermes-fleet
 git clone https://github.com/larrylegendrr/hermes-fleet.git .
 cp .env.example .env
-# Edit .env with production secrets
+# Edit .env with production secrets (no Firecrawl API key needed - it's self-hosted!)
 
-# Deploy via GitHub Actions (push to main)
+# Start services
+docker compose up -d
 ```
 
 ## Configuration
@@ -58,13 +60,29 @@ Create a `.env` file with the following variables:
 | `ENVIRONMENT` | No | `production` or `development` (default: production) |
 | `LOG_LEVEL` | No | `DEBUG`, `INFO`, `WARNING`, `ERROR` (default: INFO) |
 
+**Note:** Firecrawl is now self-hosted - no API key needed! It runs as part of the Docker Compose stack.
+
 ### For CI/CD Deployment
 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `VPS_HOST` | Yes | VPS IP address or hostname |
 | `VPS_USER` | Yes | SSH username |
-| `VPS_SSH_KEY_PATH` | Yes | Path to SSH private key |
+| `VPS_PASSWORD` | Yes | SSH password |
+
+### GitHub Secrets Setup
+
+For automated deployment via GitHub Actions, add these secrets to your repo:
+
+1. Go to **Settings → Secrets and variables → Actions**
+2. Add the following repository secrets:
+   - `VPS_HOST` - Your VPS IP (e.g., `204.12.253.215`)
+   - `VPS_USER` - SSH username (e.g., `administrator`)
+   - `VPS_PASSWORD` - SSH password
+   - `KIMI_API_KEY` - Your Moonshot AI API key
+   - `DISCORD_TOKEN` - Your Discord bot token
+
+Push to `main` branch triggers automatic deployment.
 
 ## Skills
 

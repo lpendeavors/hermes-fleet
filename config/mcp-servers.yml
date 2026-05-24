@@ -10,7 +10,8 @@ mcp:
         - "-y"
         - "firecrawl-mcp"
       env:
-        FIRECRAWL_API_KEY: "${FIRECRAWL_API_KEY}"
+        FIRECRAWL_API_KEY: "firecrawl-local-api-key"
+        FIRECRAWL_API_URL: "http://firecrawl-api:3002"
 
     playwright:
       name: "playwright"

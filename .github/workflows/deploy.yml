@@ -15,29 +15,24 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     environment: production
     
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d477e20d10a51b02e  # v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
-          
-      - name: Add host to known_hosts
+      - name: Install sshpass
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_HOST_KEY }}" >> ~/.ssh/known_hosts
+          sudo apt-get update && sudo apt-get install -y sshpass
           
       - name: Deploy to VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
-          ssh $VPS_USER@$VPS_HOST << 'EOF'
+          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $VPS_USER@$VPS_HOST << 'EOF'
             set -e
             cd /opt/hermes-fleet || exit 1
             
@@ -49,7 +44,7 @@ jobs:
             cat > .env << 'ENVFILE'
             KIMI_API_KEY=${{ secrets.KIMI_API_KEY }}
             DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
-            FIRECRAWL_API_KEY=${{ secrets.FIRECRAWL_API_KEY }}
+            FIRECRAWL_API_URL=http://firecrawl-api:3002
             ENVIRONMENT=production
             LOG_LEVEL=INFO
             ENVFILE
@@ -59,12 +54,12 @@ jobs:
             docker compose up -d --build
             
             echo "Waiting for healthcheck..."
-            for i in {1..30}; do
+            for i in {1..60}; do
               if docker compose ps | grep -q "healthy"; then
-                echo "Container is healthy"
+                echo "Services are healthy"
                 break
               fi
-              sleep 2
+              sleep 5
             done
             
             echo "Container status:"
@@ -78,8 +73,9 @@ jobs:
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
-          ssh $VPS_USER@$VPS_HOST "docker compose -f /opt/hermes-fleet/docker-compose.yml ps | grep -q 'healthy' || exit 1"
+          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $VPS_USER@$VPS_HOST "docker compose -f /opt/hermes-fleet/docker-compose.yml ps | grep -q 'healthy' || exit 1"
           echo "Deployment verified successfully"
           
       - name: Notify on failure
