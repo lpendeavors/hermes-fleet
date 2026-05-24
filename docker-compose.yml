@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  hermes:
+    image: nousresearch/hermes-agent:latest
+    container_name: band-director
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - HERMES_CONFIG_DIR=/app/config
+      - HERMES_DATA_DIR=/app/data
+      - HERMES_SKILLS_DIR=/app/skills
+    volumes:
+      - ./config:/app/config:ro
+      - ./skills:/app/skills:ro
+      - hermes-data:/app/data
+    networks:
+      - hermes-net
+    healthcheck:
+      test: ["CMD", "test", "-f", "/app/data/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  hermes-data:
+    driver: local
+
+networks:
+  hermes-net:
+    driver: bridge
