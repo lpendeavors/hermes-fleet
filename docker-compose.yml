@@ -41,75 +41,41 @@ services:
       timeout: 5s
       retries: 5
 
-  postgres:
-    image: postgres:15-alpine
-    container_name: firecrawl-postgres
-    restart: unless-stopped
-    environment:
-      - POSTGRES_USER=firecrawl
-      - POSTGRES_PASSWORD=firecrawl
-      - POSTGRES_DB=firecrawl
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - hermes-net
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U firecrawl -d firecrawl"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   playwright-service:
-    image: browserless/chrome:latest
+    image: ghcr.io/firecrawl/playwright-service:latest
     container_name: firecrawl-playwright
     restart: unless-stopped
     environment:
-      - MAX_CONCURRENT_SESSIONS=10
-      - CONNECTION_TIMEOUT=60000
-      - MAX_QUEUE_LENGTH=20
-      - ENABLE_CORS=true
-      - EXIT_ON_HEALTH_FAILURE=true
-      - PREBOOT_CHROME=true
-      - KEEP_ALIVE=true
-      - FUNCTION_ENABLE_INCOGNITO_MODE=true
+      - PORT=3000
+      - MAX_CONCURRENT_PAGES=10
     networks:
       - hermes-net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000 pressure"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   firecrawl-api:
-    image: mendableai/firecrawl:latest
+    image: ghcr.io/firecrawl/firecrawl:latest
     container_name: firecrawl-api
     restart: unless-stopped
-    command: ["pnpm", "run", "start:api"]
     environment:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
       - REDIS_RATE_LIMIT_URL=redis://redis:6379
-      - PLAYWRIGHT_MICROSERVICE_URL=http://playwright-service:3000
+      - PLAYWRIGHT_MICROSERVICE_URL=http://playwright-service:3000/scrape
       - PORT=3002
       - NUM_WORKERS_PER_QUEUE=1
       - BULL_AUTH_KEY=firecrawl-local-auth-key
       - TEST_API_KEY=firecrawl-local-api-key
-      - SUPABASE_ANON_TOKEN=
-      - SUPABASE_URL=
-      - SUPABASE_SERVICE_TOKEN=
       - OPENAI_API_KEY=${KIMI_API_KEY}
       - OPENAI_BASE_URL=https://api.moonshot.cn/v1
-      - OPENAI_MODEL=kimi-latest
-      - SCRAPING_BEE_API_KEY=
-      - SELF_HOSTED_WEBHOOK_VERIFICATION_TOKEN=
-      - POSTHOG_API_KEY=
-      - POSTHOG_HOST=
+      - MODEL_NAME=kimi-latest
       - ENV=production
       - LOG_LEVEL=INFO
     depends_on:
       redis:
-        condition: service_healthy
-      postgres:
         condition: service_healthy
       playwright-service:
         condition: service_healthy
@@ -122,50 +88,10 @@ services:
       retries: 3
       start_period: 60s
 
-  firecrawl-worker:
-    image: mendableai/firecrawl:latest
-    container_name: firecrawl-worker
-    restart: unless-stopped
-    command: ["pnpm", "run", "workers"]
-    environment:
-      - NODE_ENV=production
-      - REDIS_URL=redis://redis:6379
-      - REDIS_RATE_LIMIT_URL=redis://redis:6379
-      - PLAYWRIGHT_MICROSERVICE_URL=http://playwright-service:3000
-      - PORT=3002
-      - NUM_WORKERS_PER_QUEUE=1
-      - BULL_AUTH_KEY=firecrawl-local-auth-key
-      - TEST_API_KEY=firecrawl-local-api-key
-      - SUPABASE_ANON_TOKEN=
-      - SUPABASE_URL=
-      - SUPABASE_SERVICE_TOKEN=
-      - OPENAI_API_KEY=${KIMI_API_KEY}
-      - OPENAI_BASE_URL=https://api.moonshot.cn/v1
-      - OPENAI_MODEL=kimi-latest
-      - SCRAPING_BEE_API_KEY=
-      - SELF_HOSTED_WEBHOOK_VERIFICATION_TOKEN=
-      - POSTHOG_API_KEY=
-      - POSTHOG_HOST=
-      - ENV=production
-      - LOG_LEVEL=INFO
-    depends_on:
-      redis:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      playwright-service:
-        condition: service_healthy
-      firecrawl-api:
-        condition: service_healthy
-    networks:
-      - hermes-net
-
 volumes:
   hermes-data:
     driver: local
   redis-data:
-    driver: local
-  postgres-data:
     driver: local
 
 networks:
