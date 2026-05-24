@@ -1,0 +1,24 @@
+# Discord Gateway Configuration
+gateway:
+  platform: "discord"
+  token: "${DISCORD_TOKEN}"
+
+  bot:
+    name: "Band Director"
+    status: "Listening to the market"
+    activity_type: "watching"
+
+  intents:
+    - "guilds"
+    - "guild_messages"
+    - "message_content"
+    - "direct_messages"
+
+  messages:
+    prefix: "!"
+    mention_trigger: true
+    dm_enabled: true
+
+  rate_limit:
+    max_requests_per_minute: 30
+    cooldown_seconds: 2

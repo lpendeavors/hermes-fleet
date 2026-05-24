@@ -1,0 +1,21 @@
+# MCP (Model Context Protocol) Server Integrations
+mcp:
+  enabled: true
+  servers:
+    firecrawl:
+      name: "firecrawl"
+      transport: "stdio"
+      command: "npx"
+      args:
+        - "-y"
+        - "firecrawl-mcp"
+      env:
+        FIRECRAWL_API_KEY: "${FIRECRAWL_API_KEY:-}"
+
+    playwright:
+      name: "playwright"
+      transport: "stdio"
+      command: "npx"
+      args:
+        - "-y"
+        - "@anthropic-ai/playwright-mcp"
