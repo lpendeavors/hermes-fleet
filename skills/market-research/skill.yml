@@ -1,0 +1,35 @@
+name: "market-research"
+description: "Research financial markets, stocks, and cryptocurrencies using web data and APIs"
+version: "1.0.0"
+author: "Band Director"
+entry_point: "research.py"
+
+tools:
+  - name: "search_ticker"
+    description: "Search for a stock or crypto ticker symbol"
+    parameters:
+      - name: "query"
+        type: "string"
+        description: "Company name or ticker symbol"
+        required: true
+        
+  - name: "get_price"
+    description: "Get current price for a ticker"
+    parameters:
+      - name: "ticker"
+        type: "string"
+        description: "Stock or crypto ticker symbol"
+        required: true
+        
+  - name: "get_news"
+    description: "Get recent news for a ticker or topic"
+    parameters:
+      - name: "query"
+        type: "string"
+        description: "Ticker symbol or search query"
+        required: true
+      - name: "limit"
+        type: "integer"
+        description: "Number of articles to return"
+        required: false
+        default: 5

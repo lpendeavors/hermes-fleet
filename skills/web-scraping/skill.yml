@@ -1,0 +1,38 @@
+name: "web-scraping"
+description: "Web scraping and research tools via Firecrawl and Playwright MCP"
+version: "1.0.0"
+author: "Band Director"
+
+tools:
+  - name: "scrape_url"
+    description: "Scrape and extract content from a URL using Firecrawl"
+    parameters:
+      - name: "url"
+        type: "string"
+        required: true
+      - name: "extract_text"
+        type: "boolean"
+        required: false
+        default: true
+        
+  - name: "search_web"
+    description: "Search the web and return results"
+    parameters:
+      - name: "query"
+        type: "string"
+        required: true
+      - name: "num_results"
+        type: "integer"
+        required: false
+        default: 5
+        
+  - name: "browse_page"
+    description: "Browse a JavaScript-heavy page using Playwright"
+    parameters:
+      - name: "url"
+        type: "string"
+        required: true
+      - name: "wait_for"
+        type: "string"
+        description: "CSS selector to wait for"
+        required: false

@@ -1,0 +1,38 @@
+name: "technical-analysis"
+description: "Technical analysis tools for chart patterns and indicators"
+version: "1.0.0"
+author: "Band Director"
+
+tools:
+  - name: "calculate_rsi"
+    description: "Calculate Relative Strength Index for a ticker"
+    parameters:
+      - name: "ticker"
+        type: "string"
+        required: true
+      - name: "period"
+        type: "integer"
+        required: false
+        default: 14
+        
+  - name: "calculate_sma"
+    description: "Calculate Simple Moving Average"
+    parameters:
+      - name: "ticker"
+        type: "string"
+        required: true
+      - name: "period"
+        type: "integer"
+        required: false
+        default: 20
+        
+  - name: "analyze_trend"
+    description: "Analyze price trend direction and strength"
+    parameters:
+      - name: "ticker"
+        type: "string"
+        required: true
+      - name: "lookback_days"
+        type: "integer"
+        required: false
+        default: 30
