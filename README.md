@@ -2,52 +2,79 @@
 
 Hermes Agent deployment for financial market research via Discord.
 
+## Prerequisites
+
+- Docker 20.10+ with Compose v2 (`docker compose`)
+- Git
+- SSH key pair (for VPS deployment)
+
 ## Quick Start
 
 ### 1. Clone and configure
 
 ```bash
-git clone <your-repo> hermes-fleet
+git clone https://github.com/larrylegendrr/hermes-fleet.git
 cd hermes-fleet
 cp .env.example .env
-# Edit .env with your keys
+# Edit .env with your API keys
 ```
 
-### 2. Local development
+### 2. Create required directories
+
+```bash
+mkdir -p config skills
+```
+
+### 3. Local development
 
 ```bash
 docker compose up -d
 docker compose logs -f hermes
 ```
 
-### 3. VPS deployment
+### 4. VPS deployment
 
 ```bash
 # One-time server setup
-curl -fsSL https://raw.githubusercontent.com/your-org/hermes-fleet/main/scripts/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/larrylegendrr/hermes-fleet/main/scripts/install.sh | sudo bash
 
-# Then deploy via GitHub Actions (push to main)
+# Clone repo on VPS
+cd /opt/hermes-fleet
+git clone https://github.com/larrylegendrr/hermes-fleet.git .
+cp .env.example .env
+# Edit .env with production secrets
+
+# Deploy via GitHub Actions (push to main)
 ```
 
 ## Configuration
 
-| Variable | Description |
-|----------|-------------|
-| `KIMI_API_KEY` | Moonshot AI API key |
-| `DISCORD_TOKEN` | Discord bot token |
-| `VPS_HOST` | Deployment target IP/hostname |
-| `VPS_USER` | SSH username |
-| `VPS_SSH_KEY_PATH` | Path to SSH private key |
+Create a `.env` file with the following variables:
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `KIMI_API_KEY` | Yes | [Moonshot AI](https://platform.moonshot.cn/) API key |
+| `DISCORD_TOKEN` | Yes | [Discord Developer Portal](https://discord.com/developers/applications) bot token |
+| `ENVIRONMENT` | No | `production` or `development` (default: production) |
+| `LOG_LEVEL` | No | `DEBUG`, `INFO`, `WARNING`, `ERROR` (default: INFO) |
+
+### For CI/CD Deployment
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `VPS_HOST` | Yes | VPS IP address or hostname |
+| `VPS_USER` | Yes | SSH username |
+| `VPS_SSH_KEY_PATH` | Yes | Path to SSH private key |
 
 ## Skills
 
-- **market-research** - Ticker search, price lookups, news
-- **technical-analysis** - RSI, SMA, trend analysis
-- **web-scraping** - Firecrawl and Playwright integration
+- **market-research** - Ticker search, price lookups, news (see `skills/market-research/`)
+- **technical-analysis** - RSI, SMA, trend analysis (see `skills/technical-analysis/`)
+- **web-scraping** - Firecrawl and Playwright integration (see `skills/web-scraping/`)
 
-## Commands
+## Discord Commands
 
-In Discord, mention the bot or use the prefix:
+In Discord, mention the bot:
 
 ```
 @Band Director What's the latest on AAPL?
@@ -55,11 +82,19 @@ In Discord, mention the bot or use the prefix:
 @Band Director Set up a daily SPY summary at 9am
 ```
 
-## Backup
+## Backup (VPS)
 
 ```bash
+# Run on VPS
 /opt/hermes-fleet/scripts/backup.sh
 ```
+
+Backups are stored in `/opt/backups/hermes/` with 7-day retention.
+
+## Documentation
+
+- [Design Spec](docs/superpowers/specs/2025-05-24-hermes-fleet-design.md)
+- [Implementation Plan](docs/superpowers/plans/2025-05-24-band-director-implementation.md)
 
 ## License
 
