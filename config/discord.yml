@@ -6,7 +6,7 @@ gateway:
   bot:
     name: "Band Director"
     status: "Listening to the market"
-    activity_type: "watching"
+    activity_type: "listening"
 
   intents:
     - "guilds"
