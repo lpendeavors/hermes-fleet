@@ -1,4 +1,5 @@
 name: "technical-analysis"
+entry_point: "analysis.py"
 description: "Technical analysis tools for chart patterns and indicators"
 version: "1.0.0"
 author: "Band Director"

@@ -5,6 +5,7 @@ Provides tools for looking up market data and news.
 """
 
 import json
+import urllib.error
 import urllib.request
 import urllib.parse
 from typing import Dict, List, Optional
@@ -40,13 +41,14 @@ def search_ticker(query: str) -> Dict:
             
         return {"status": "success", "results": results}
         
-    except Exception as e:
+    except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError) as e:
         return {"status": "error", "message": str(e)}
 
 
 def get_price(ticker: str) -> Dict:
     """Get current price for a ticker."""
-    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?interval=1d&range=1d"
+    encoded_ticker = urllib.parse.quote(ticker, safe='')
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{encoded_ticker}?interval=1d&range=1d"
     
     try:
         req = urllib.request.Request(
@@ -70,7 +72,7 @@ def get_price(ticker: str) -> Dict:
             "previous_close": meta.get("previousClose"),
         }
         
-    except Exception as e:
+    except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError, IndexError) as e:
         return {"status": "error", "message": str(e)}
 
 
