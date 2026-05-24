@@ -66,6 +66,9 @@ ufw default deny incoming
 ufw default allow outgoing
 ufw allow "$DEFAULT_SSH_PORT/tcp"
 
+# Enable firewall
+ufw --force enable
+
 echo "=== Bootstrap complete ==="
 echo "Firewall configured to allow SSH on port $DEFAULT_SSH_PORT"
 echo "Next steps:"

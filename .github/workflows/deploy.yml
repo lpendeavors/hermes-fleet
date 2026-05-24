@@ -49,6 +49,9 @@ jobs:
             cat > .env << 'ENVFILE'
             KIMI_API_KEY=${{ secrets.KIMI_API_KEY }}
             DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
+            FIRECRAWL_API_KEY=${{ secrets.FIRECRAWL_API_KEY }}
+            ENVIRONMENT=production
+            LOG_LEVEL=INFO
             ENVFILE
             
             echo "Restarting services..."
