@@ -1,0 +1,25 @@
+# Secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Data volumes
+hermes-data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
